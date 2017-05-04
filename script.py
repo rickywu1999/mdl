@@ -42,28 +42,91 @@ def run(filename):
     tmp = []
     step = 0.1
     for command in commands:
-        print command
-        if command == "push":
-            stack.append(commands)
-        if command == "pop":
+        if command[0] == 'sphere':
+            #print 'SPHERE\t' + str(command)
+            add_sphere(tmp,
+                       float(command[1]), float(command[2]), float(command[3]),
+                       float(command[4]), step)
+            matrix_mult( stack[-1], tmp )
+            draw_polygons(tmp, screen, color)
+            tmp = []
+
+        elif command[0] == 'torus':
+            #print 'TORUS\t' + str(command)
+            add_torus(tmp,
+                      float(command[1]), float(command[2]), float(command[3]),
+                      float(command[4]), float(command[5]), step)
+            matrix_mult( stack[-1], tmp )
+            draw_polygons(tmp, screen, color)
+            tmp = []
+            
+        elif command[0] == 'box':
+            #print 'BOX\t' + str(command)
+            add_box(tmp,
+                    float(command[1]), float(command[2]), float(command[3]),
+                    float(command[4]), float(command[5]), float(command[6]))
+            matrix_mult( stack[-1], tmp )
+            draw_polygons(tmp, screen, color)
+            tmp = []
+            
+        elif command[0] == 'circle':
+            #print 'CIRCLE\t' + str(command)
+            add_circle(tmp,
+                       float(command[1]), float(command[2]), float(command[3]),
+                       float(command[4]), step)
+
+        elif command[0] == 'hermite' or command[0] == 'bezier':
+            #print 'curve\t' + command + ": " + str(command)
+            add_curve(tmp,
+                      float(command[1]), float(command[2]),
+                      float(command[3]), float(command[4]),
+                      float(command[5]), float(command[6]),
+                      float(command[7]), float(command[8]),
+                      step, command)                      
+            
+        elif command[0] == 'line':            
+            #print 'LINE\t' + str(command)
+
+            add_edge( tmp,
+                      float(command[1]), float(command[2]), float(command[3]),
+                      float(command[4]), float(command[5]), float(command[6]) )
+
+        elif command[0] == 'scale':
+            #print 'SCALE\t' + str(command)
+            t = make_scale(float(command[1]), float(command[2]), float(command[3]))
+            matrix_mult( stack[-1], t )
+            stack[-1] = [ x[:] for x in t]
+
+        elif command[0] == 'move':
+            #print 'MOVE\t' + str(command)
+            t = make_translate(float(command[1]), float(command[2]), float(command[3]))
+            matrix_mult( stack[-1], t )
+            stack[-1] = [ x[:] for x in t]
+
+
+        elif command[0] == 'rotate':
+            #print 'ROTATE\t' + str(command)
+            theta = float(command[2]) * (math.pi / 180)
+            
+            if command[1] == 'x':
+                t = make_rotX(theta)
+            elif command[1] == 'y':
+                t = make_rotY(theta)
+            else:
+                t = make_rotZ(theta)
+            matrix_mult( stack[-1], t )
+            stack[-1] = [ x[:] for x in t]
+
+        elif command[0] == 'push':
+            stack.append( [x[:] for x in stack[-1]] )
+            
+        elif command[0] == 'pop':
             stack.pop()
-        if command == "move":
-            pass
-        if command == "rotate":
-            pass
-        if command == "scale":
-            pass
-        if command == "line":
-            pass
-        if command == "box":
-            pass
-        if command == "sphere":
-            pass
-        if command == "torus":
-            pass
-        if command == "save":
-            pass
-        if command == "display":
-            pass
-        
+            
+        elif command[0] == 'display' or command[0] == 'save':
+            if command[0] == 'display':
+                print("displaying now")
+                display(screen)
+            else:
+                save_extension(screen, command[1])
         
